@@ -48,7 +48,7 @@ dokta = st.chat_message('assistant')
 with st.container():
     dokta.write("Hello there👋🏾, "
                 "my name is **Pocket Dokta 👨🏾‍⚕️** and I am here to assist you with preliminary diagnosis.")
-    dokta.info('To optimize the nature of our feedback and accuracy of diagnosis, I have provided you a **list of '
+    dokta.info('To optimize the nature of my feedback and accuracy of diagnosis, I have provided you a **list of '
                'symptoms you can select from** based on what you are feeling.')
 
     user = st.chat_message("user")
