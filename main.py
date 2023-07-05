@@ -5,7 +5,7 @@ import streamlit as st
 with open('diagnosis_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
-data = pd.read_csv('data\\Training.csv')
+data = pd.read_csv('data/Training.csv')
 data = pd.DataFrame(data)
 data.drop('Unnamed: 133', axis=1, inplace=True)
 data.drop('prognosis', axis=1, inplace=True)
@@ -32,7 +32,7 @@ def get_predictions(symptoms):
 
 
 def generate_desc(dgs):
-    diseases = pd.read_csv('data\\disease_description.csv')
+    diseases = pd.read_csv('data/disease_description.csv')
     dds = pd.DataFrame(diseases)
     decs = []
     for d in dgs:
