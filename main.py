@@ -82,4 +82,4 @@ with st.container():
             st.write(descriptions[0])
         with g:
              g.metric('Third Possible diagnosis', f'{labels[1]}', f'{percentages[2]}')
-             st.write(descriptions[2])
+             st.write(descriptions[1])
