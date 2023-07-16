@@ -8,6 +8,7 @@ from PIL import Image
 import numpy as np
 import urllib.request
 import os
+import tensorflow
 
 with open('diagnosis_model.pkl', 'rb') as file:
     model = pickle.load(file)
