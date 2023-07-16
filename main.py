@@ -6,11 +6,17 @@ import cv2
 import json
 from PIL import Image
 import numpy as np
+import urllib.request
 
 with open('diagnosis_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
-skin_model = load_model('skin_diseases.h5')
+@st.experimental_singleton
+def load_my_model():
+    if not os.path.isfile('model.h5'):
+        urllib.request.urlretrieve('https://github.com/Elisco360/PocketDokta/blob/main/skin_diseases.h5', 'model.h5')
+    return tensorflow.keras.models.load_model('model.h5')
+skin_model = load_my_model()
 file = open('dat.json')
 skin_data = json.load(file)
 skin_data_keys = list(skin_data)
