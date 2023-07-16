@@ -10,7 +10,7 @@ import numpy as np
 with open('diagnosis_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
-#skin_model = load_model('skin_diseases.h5', compile=True)
+skin_model = load_model('skin_diseases.h5', compile=True)
 file = open('dat.json')
 skin_data = json.load(file)
 skin_data_keys = list(skin_data)
