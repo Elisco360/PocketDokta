@@ -1,4 +1,4 @@
-﻿absl-py==1.4.0
+absl-py==1.4.0
 aioice==0.9.0
 aiortc==1.5.0
 altair==5.0.1
@@ -59,7 +59,7 @@ networkx==3.0
 numpy==1.24.3
 oauthlib==3.2.2
 openai==0.27.8
-opencv-python-headless
+opencv-python==4.7.0.72
 opt-einsum==3.3.0
 packaging==23.1
 pandas==2.0.3
@@ -116,6 +116,8 @@ tensorboard==2.13.0
 tensorboard-data-server==0.7.1
 tensorboard-plugin-wit==1.8.1
 tensorflow==2.13.0
+tensorflow-estimator==2.13.0
+tensorflow-intel==2.13.0
 tensorflow-io-gcs-filesystem==0.31.0
 termcolor==2.2.0
 threadpoolctl==3.1.0
