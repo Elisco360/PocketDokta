@@ -1,30 +1,47 @@
 import pickle
 import pandas as pd
 import streamlit as st
-from keras.models import load_model
 import cv2
 import json
 from PIL import Image
 import numpy as np
+import requests
+import plotly.express as px
+import time
+
+
+links = {
+    "Melanoma": "https://www.wikipedia.org/wiki/Melanoma",
+    "Vascular-lesions": "https://en.wikipedia.org/wiki/Vascular_anomaly",
+    "Benign-keratosis-like-lesions":"https://www.mayoclinic.org/diseases-conditions/seborrheic-keratosis/symptoms-causes/syc-20353878#:~:text=A%20seborrheic%20keratosis%20(seb%2Do,or%20scaly%20and%20slightly%20raised.",
+    "Basal-cell-carcinoma":"https://www.mayoclinic.org/diseases-conditions/basal-cell-carcinoma/symptoms-causes/syc-20354187#:~:text=on%20brown%20skin-,Basal%20cell%20carcinoma%20is%20a%20type%20of%20skin%20cancer%20that,a%20type%20of%20skin%20cancer.",
+    "Melanocytic-nevi":"https://en.wikipedia.org/wiki/Melanocytic_nevus",
+    "Actinic-keratoses":"https://www.mayoclinic.org/diseases-conditions/actinic-keratosis/symptoms-causes/syc-20354969",
+    "Dermatofibroma":"https://dermnetnz.org/topics/dermatofibroma",
+}
+
+
+API_URL = "https://api-inference.huggingface.co/models/gianlab/swin-tiny-patch4-window7-224-finetuned-skin-cancer"
+API_TOKEN = "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"
+headers = {"Authorization": f"Bearer {API_TOKEN}"}
+
+
+
 
 with open('diagnosis_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
-skin_model = load_model('skin_diseases.h5', compile=True)
-file = open('dat.json')
-skin_data = json.load(file)
-skin_data_keys = list(skin_data)
+
 data = pd.read_csv('data/Training.csv')
 data = pd.DataFrame(data)
 data.drop('Unnamed: 133', axis=1, inplace=True)
 data.drop('prognosis', axis=1, inplace=True)
 
 
-def get_skin_predictions(image):
-    img = cv2.resize(image, (32,32))/float(255)
-    prediction = skin_model.predict(img.reshape(1,32,32,3))
-    ai_choice = skin_data_keys[prediction.argmax()]
-    return ai_choice, skin_data[ai_choice]
+def query(data):
+    """Send a request to the API and return the response."""
+    response = requests.request("POST", API_URL, headers=headers, data=data)
+    return json.loads(response.content.decode("utf-8"))
 
 def get_predictions(symptoms):
     reconstructed_symptoms = [1 if symptom in symptoms else 0 for symptom in data.columns]
@@ -109,26 +126,53 @@ with image:
         with st.expander('Click here to take picture'):
             capture = st.camera_input('Take a picture of the infected body part')
             if capture:
-                img: Image = Image.open(capture)
-                img_array = np.array(img)
+                img = Image.open(capture)
+                img_array = capture
     elif check == 'Image Upload':
         upload = st.file_uploader('Upload Image here')
         if upload:
             img: Image = Image.open(upload)
-            img_array = np.array(img)
+            img_array = upload
     else:
         st.warning('Please select an input mode')
-    try:
-        results = get_skin_predictions(image=img_array)
-        if results:
-            st.success('Image processed successfully ✅')
-            st.markdown('<hr>', unsafe_allow_html=True)
-            st.title('Results')
-            st.text_input('Diagnosis', value=results[0])
-            st.text_area('Description', value=results[1]['description'])
-            st.text_input('Causes', value=results[1]['causes'])
-            l, r = st.columns(2)
-            l.text_input('Possible treatment 1', value=results[1]['treatement-1'])
-            r.text_input('Possible treatment 2', value=results[1]['treatement-2'])
-    except:
-        pass
+        
+    if img_array is not None:
+        image_bytes = img_array.getvalue()
+        st.subheader("Model output")
+
+        with st.spinner("Waiting for the prediction..."):
+            data = query(image_bytes)
+            while "error" in data:
+                time.sleep(4)
+                data = query(image_bytes)
+        st.success("Done!")
+
+        scores = [e['score'] for e in data]
+
+        labels = []
+        for e in data:
+            if e['label'] in links:
+                labels.append(f"<a href='{links[e['label']]}' target='_blank'>{e['label']}</a>")
+            else:
+                labels.append(e['label'])
+
+        df = pd.DataFrame({'scores': scores, 'labels': labels})
+        #st.write(df.to_html(escape=False, index=False), unsafe_allow_html=True)
+        fig = px.bar(df, x='scores', y='labels', orientation='h', color='scores')
+        st.write(fig)
+        st.info("""
+            The scores above represent the probability of having a skin cancer
+            of a particular type. The higher the score, the higher the probability.
+            Note that the model is not perfect, and one should see a doctor for
+            a professional observation.
+
+            **Also, if the model returns a score of below 0.7 for all the classes, it means
+            that the lesion is probably not a skin cancer.**
+        """)
+        
+
+
+
+
+
+    
