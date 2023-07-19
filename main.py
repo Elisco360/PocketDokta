@@ -26,7 +26,7 @@ API_TOKEN = "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"
 headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
 
-
+st.set_page_config(page_title='Pocket Dokta', page_icon='👨‍⚕️')
 
 with open('diagnosis_model.pkl', 'rb') as file:
     model = pickle.load(file)
