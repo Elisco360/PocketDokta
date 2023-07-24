@@ -166,7 +166,7 @@ with image:
             Note that the model is not perfect, and one should see a doctor for
             a professional observation.
 
-            **Also, if the model returns a score of below 0.7 for all the classes, it means
+            **Also, if the model returns a score of below 0.3 for all the classes, it means
             that the lesion is probably not a skin cancer.**
         """)
         
